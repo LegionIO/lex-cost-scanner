@@ -18,17 +18,19 @@ module Legion
 
           def format_slack_blocks(report:)
             blocks = []
+            savings = format('%.2f', report[:total_savings])
 
             blocks << { type: 'header', text: { type: 'plain_text', text: 'Weekly Cost Optimization Report' } }
             blocks << { type: 'section', text: { type: 'mrkdwn',
-                                                 text: "*Total potential savings:* $#{'%.2f' % report[:total_savings]}/month\n" \
+                                                 text: "*Total potential savings:* $#{savings}/month\n" \
                                                        "*Findings:* #{report[:findings_count]}" } }
             blocks << { type: 'divider' }
 
             (report[:top_findings] || []).each_with_index do |finding, i|
               blocks << { type: 'section', text: { type: 'mrkdwn',
                                                    text: "*#{i + 1}. #{finding[:resource_id]}* (#{finding[:finding_type]})\n" \
-                                                         "Savings: $#{'%.2f' % (finding[:estimated_monthly_savings] || 0)}/month\n" \
+                                                         "Savings: $#{format('%.2f',
+                                                                             finding[:estimated_monthly_savings] || 0)}/month\n" \
                                                          "#{finding[:recommendation]}" } }
             end
 
@@ -37,11 +39,11 @@ module Legion
 
           def post_report(limit: 10)
             report = generate_report(limit: limit)
-            blocks = format_slack_blocks(report: report)
+            format_slack_blocks(report: report)
 
             webhook = report_webhook
             if webhook && defined?(Legion::Extensions::Slack::Client)
-              message = "Cost Optimization: $#{'%.2f' % report[:total_savings]}/month in savings identified"
+              message = "Cost Optimization: $#{format('%.2f', report[:total_savings])}/month in savings identified"
               Legion::Extensions::Slack::Client.new.send_webhook(message: message, webhook: webhook)
             end
 

@@ -7,9 +7,7 @@ require_relative 'cost_scanner/helpers/findings_store'
 require_relative 'cost_scanner/runners/scanner'
 require_relative 'cost_scanner/runners/reporter'
 
-if defined?(Legion::Extensions::Actors::Every)
-  require_relative 'cost_scanner/actors/weekly_scan'
-end
+require_relative 'cost_scanner/actors/weekly_scan' if defined?(Legion::Extensions::Actors::Every)
 
 module Legion
   module Extensions

@@ -15,31 +15,8 @@ module Legion
 
           def scan_account(account_id:, cloud: 'aws')
             resources = fetch_resources(account_id: account_id, cloud: cloud)
-            findings_count = 0
-
-            resources.each do |resource|
-              next if (resource[:monthly_cost] || 0) < Helpers::Constants::MIN_MONTHLY_COST
-
-              classification = Helpers::Classifier.classify(
-                resource_id: resource[:resource_id],
-                resource_type: resource[:resource_type],
-                monthly_cost: resource[:monthly_cost],
-                utilization: resource[:utilization] || {}
-              )
-
-              next if classification[:finding_type] == :none
-
-              result = Helpers::FindingsStore.record(
-                account_id: account_id,
-                resource_id: resource[:resource_id],
-                resource_type: resource[:resource_type],
-                finding_type: classification[:finding_type],
-                severity: classification[:severity],
-                monthly_cost: resource[:monthly_cost],
-                estimated_monthly_savings: classification[:estimated_monthly_savings],
-                recommendation: classification[:recommendation]
-              )
-              findings_count += 1 if result[:new]
+            findings_count = resources.count do |resource|
+              process_resource(account_id: account_id, resource: resource)
             end
 
             { success: true, account_id: account_id, scanned: resources.size,
@@ -60,7 +37,31 @@ module Legion
             Legion::Settings[:cost_scanner] || {}
           end
 
-          def fetch_resources(account_id:, cloud: 'aws')
+          def process_resource(account_id:, resource:)
+            return false if (resource[:monthly_cost] || 0) < Helpers::Constants::MIN_MONTHLY_COST
+
+            classification = Helpers::Classifier.classify(
+              resource_id: resource[:resource_id],
+              resource_type: resource[:resource_type],
+              monthly_cost: resource[:monthly_cost],
+              utilization: resource[:utilization] || {}
+            )
+            return false if classification[:finding_type] == :none
+
+            result = Helpers::FindingsStore.record(
+              account_id: account_id,
+              resource_id: resource[:resource_id],
+              resource_type: resource[:resource_type],
+              finding_type: classification[:finding_type],
+              severity: classification[:severity],
+              monthly_cost: resource[:monthly_cost],
+              estimated_monthly_savings: classification[:estimated_monthly_savings],
+              recommendation: classification[:recommendation]
+            )
+            result[:new]
+          end
+
+          def fetch_resources(_account_id:, _cloud: 'aws')
             return [] unless defined?(Legion::Extensions::Http::Client)
 
             []

@@ -41,16 +41,16 @@ RSpec.describe Legion::Extensions::CostScanner::Helpers::FindingsStore do
   describe '.total_savings' do
     it 'sums estimated savings across all findings' do
       described_class.record(**finding)
-      described_class.record(**finding.merge(resource_id: 'i-def', estimated_monthly_savings: 100.0))
+      described_class.record(**finding, resource_id: 'i-def', estimated_monthly_savings: 100.0)
       expect(described_class.total_savings).to eq(300.0)
     end
   end
 
   describe '.top_by_savings' do
     it 'returns findings sorted by savings descending' do
-      described_class.record(**finding.merge(resource_id: 'i-1', estimated_monthly_savings: 50.0))
-      described_class.record(**finding.merge(resource_id: 'i-2', estimated_monthly_savings: 300.0))
-      described_class.record(**finding.merge(resource_id: 'i-3', estimated_monthly_savings: 150.0))
+      described_class.record(**finding, resource_id: 'i-1', estimated_monthly_savings: 50.0)
+      described_class.record(**finding, resource_id: 'i-2', estimated_monthly_savings: 300.0)
+      described_class.record(**finding, resource_id: 'i-3', estimated_monthly_savings: 150.0)
       top = described_class.top_by_savings(limit: 2)
       expect(top.map { |f| f[:resource_id] }).to eq(%w[i-2 i-3])
     end
