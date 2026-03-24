@@ -3,6 +3,7 @@
 require_relative 'cost_scanner/version'
 require_relative 'cost_scanner/helpers/constants'
 require_relative 'cost_scanner/helpers/classifier'
+require_relative 'cost_scanner/helpers/findings_store'
 
 module Legion
   module Extensions
