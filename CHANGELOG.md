@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.1] - 2026-03-27
+
+### Fixed
+- WeeklyScan actor: `module Actors` → `module Actor` to match framework convention
+
 ## [0.1.0] - 2026-03-24
 
 ### Added

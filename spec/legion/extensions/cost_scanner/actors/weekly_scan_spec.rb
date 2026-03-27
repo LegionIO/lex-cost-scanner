@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Legion::Extensions::CostScanner::Actors::WeeklyScan do
+RSpec.describe Legion::Extensions::CostScanner::Actor::WeeklyScan do
   subject { described_class.new }
 
   it 'runs every 604800 seconds (1 week)' do

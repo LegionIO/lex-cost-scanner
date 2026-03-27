@@ -3,7 +3,7 @@
 module Legion
   module Extensions
     module CostScanner
-      module Actors
+      module Actor
         class WeeklyScan < Legion::Extensions::Actors::Every
           def time
             604_800
