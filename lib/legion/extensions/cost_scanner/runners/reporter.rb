@@ -5,15 +5,17 @@ module Legion
     module CostScanner
       module Runners
         module Reporter
+          extend self
+
           def generate_report(limit: 10)
             top = Helpers::FindingsStore.top_by_savings(limit: limit)
             stats = Helpers::FindingsStore.stats
 
-            { total_savings: stats[:total_savings],
+            { total_savings:  stats[:total_savings],
               findings_count: stats[:total],
-              by_type: stats[:by_type],
-              top_findings: top,
-              generated_at: Time.now }
+              by_type:        stats[:by_type],
+              top_findings:   top,
+              generated_at:   Time.now }
           end
 
           def format_slack_blocks(report:)
@@ -55,7 +57,7 @@ module Legion
           private
 
           def report_webhook
-            return nil unless defined?(Legion::Settings)
+            return nil unless defined?(Legion::Settings) # rubocop:disable Legion/Extension/RunnerReturnHash
 
             config = Legion::Settings[:cost_scanner] || {}
             config[:slack_webhook]

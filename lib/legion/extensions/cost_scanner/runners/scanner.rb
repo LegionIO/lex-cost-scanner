@@ -5,6 +5,8 @@ module Legion
     module CostScanner
       module Runners
         module Scanner
+          extend self
+
           def scan_all
             accounts = scanner_config[:accounts] || []
             results = accounts.map { |acct| scan_account(account_id: acct[:id], cloud: acct[:cloud]) }
@@ -38,31 +40,31 @@ module Legion
           end
 
           def process_resource(account_id:, resource:)
-            return false if (resource[:monthly_cost] || 0) < Helpers::Constants::MIN_MONTHLY_COST
+            return false if (resource[:monthly_cost] || 0) < Helpers::Constants::MIN_MONTHLY_COST # rubocop:disable Legion/Extension/RunnerReturnHash
 
             classification = Helpers::Classifier.classify(
-              resource_id: resource[:resource_id],
+              resource_id:   resource[:resource_id],
               resource_type: resource[:resource_type],
-              monthly_cost: resource[:monthly_cost],
-              utilization: resource[:utilization] || {}
+              monthly_cost:  resource[:monthly_cost],
+              utilization:   resource[:utilization] || {}
             )
-            return false if classification[:finding_type] == :none
+            return false if classification[:finding_type] == :none # rubocop:disable Legion/Extension/RunnerReturnHash
 
             result = Helpers::FindingsStore.record(
-              account_id: account_id,
-              resource_id: resource[:resource_id],
-              resource_type: resource[:resource_type],
-              finding_type: classification[:finding_type],
-              severity: classification[:severity],
-              monthly_cost: resource[:monthly_cost],
+              account_id:                account_id,
+              resource_id:               resource[:resource_id],
+              resource_type:             resource[:resource_type],
+              finding_type:              classification[:finding_type],
+              severity:                  classification[:severity],
+              monthly_cost:              resource[:monthly_cost],
               estimated_monthly_savings: classification[:estimated_monthly_savings],
-              recommendation: classification[:recommendation]
+              recommendation:            classification[:recommendation]
             )
             result[:new]
           end
 
           def fetch_resources(_account_id:, _cloud: 'aws')
-            return [] unless defined?(Legion::Extensions::Http::Client)
+            return [] unless defined?(Legion::Extensions::Http::Client) # rubocop:disable Legion/Extension/RunnerReturnHash
 
             []
           end

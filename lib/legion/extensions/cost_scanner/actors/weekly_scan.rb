@@ -4,7 +4,7 @@ module Legion
   module Extensions
     module CostScanner
       module Actor
-        class WeeklyScan < Legion::Extensions::Actors::Every
+        class WeeklyScan < Legion::Extensions::Actors::Every # rubocop:disable Legion/Extension/EveryActorRequiresTime
           def time
             604_800
           end

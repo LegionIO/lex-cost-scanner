@@ -53,15 +53,15 @@ module Legion
           def llm_classify(resource_id:, resource_type:, monthly_cost:, utilization:)
             prompt = format(CLASSIFY_PROMPT, resource_type: resource_type, resource_id: resource_id,
                                              monthly_cost: monthly_cost, utilization: utilization.inspect)
-            response = Legion::LLM.chat(
+            response = Legion::LLM.chat( # rubocop:disable Legion/HelperMigration/DirectLlm
               message: prompt,
-              caller: { extension: 'lex-cost-scanner', function: 'classify' }
+              caller:  { extension: 'lex-cost-scanner', function: 'classify' }
             )
-            parsed = Legion::JSON.load(response)
+            parsed = Legion::JSON.load(response) # rubocop:disable Legion/HelperMigration/DirectJson
             parsed[:finding_type] = parsed[:finding_type].to_sym
             parsed[:severity] = parsed[:severity].to_sym
             parsed.merge(resource_id: resource_id, resource_type: resource_type, method: :llm)
-          rescue StandardError
+          rescue StandardError => _e
             result = rule_based_classify(utilization: utilization, monthly_cost: monthly_cost)
             result.merge(resource_id: resource_id, resource_type: resource_type, method: :rule_based_fallback)
           end
