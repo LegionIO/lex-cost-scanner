@@ -6,7 +6,7 @@ module Legion
       module Helpers
         module FindingsStore
           @mutex = Mutex.new
-          @findings = {}
+          @findings = {} # rubocop:disable ThreadSafety/MutableClassInstanceVariable
 
           module_function
 
@@ -55,9 +55,9 @@ module Legion
 
           def stats
             @mutex.synchronize do
-              { total: @findings.size,
+              { total:         @findings.size,
                 total_savings: @findings.values.sum { |f| f[:estimated_monthly_savings] || 0.0 },
-                by_type: @findings.values.group_by { |f| f[:finding_type] }.transform_values(&:size) }
+                by_type:       @findings.values.group_by { |f| f[:finding_type] }.transform_values(&:size) }
             end
           end
 
